@@ -104,6 +104,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.envrc
+.direnv/
 env/
 venv/
 ENV/
@@ -127,3 +129,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore external sources
+osm-rails-port/**/*
+iD/src/**/*
