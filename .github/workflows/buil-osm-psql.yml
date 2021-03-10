@@ -2,8 +2,6 @@ name: Build OSM PSQL
 
 on:
   push:
-    branches-ignore:
-      - main
     tag:
       - 'v*'
 
