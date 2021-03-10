@@ -1,9 +1,9 @@
-name: Build
+name: Build OSM
 
 on:
   push:
-    branches:
-      - main
+    tag:
+      - '*'
 
 jobs:
    
@@ -17,6 +17,10 @@ jobs:
           repository: openstreetmap/openstreetmap-website
           ref: master
           path: osm-rails-port/
+      - 
+        name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -35,4 +39,4 @@ jobs:
         with:
           context: osm-rails-port/
           push: true
-          tags: sparkgeo/osm-rails-port:latest
+          tags: sparkgeo/osm-rails-port:${{ steps.get_version.outputs.VERSION }}
