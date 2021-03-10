@@ -38,6 +38,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: osm-rails-port/
-          file: osm-rails-port/docker/postgres
+          file: osm-rails-port/docker/postgres/Dockerfile
           push: true
           tags: sparkgeo/osm-rails-port:${{ steps.get_version.outputs.VERSION }}-psql
