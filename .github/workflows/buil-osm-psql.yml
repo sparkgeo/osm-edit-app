@@ -1,0 +1,43 @@
+name: Build OSM PSQL
+
+on:
+  push:
+    tag:
+      - '*'
+
+jobs:
+   
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - 
+        name: Clone OSM
+        uses: actions/checkout@v2
+        with:
+          repository: openstreetmap/openstreetmap-website
+          ref: master
+          path: osm-rails-port/
+      - 
+        name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: osm-rails-port/
+          file: osm-rails-port/docker/postgres
+          push: true
+          tags: sparkgeo/osm-rails-port:${{ steps.get_version.outputs.VERSION }}-psql
