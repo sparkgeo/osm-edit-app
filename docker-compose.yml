@@ -3,38 +3,38 @@ version: "3"
 services:
 
 ## These are for fetching external public repos to build.
-  fetch-osm:
-    build: 
-      dockerfile: fetch.Dockerfile
-    command: git clone https://github.com/openstreetmap/openstreetmap-website.git /target
-    volumes:
-      - ./osm-rails-port/:/target
+  # fetch-osm:
+  #   build: 
+  #     dockerfile: fetch.Dockerfile
+  #   command: git clone https://github.com/openstreetmap/openstreetmap-website.git /target
+  #   volumes:
+  #     - ./osm-rails-port/:/target
 
-  fetch-id:
-    build: 
-      dockerfile: fetch.Dockerfile
-    command: git clone --depth=1 https://github.com/openstreetmap/iD.git /target
-    volumes:
-      - ./iD/src:/target
+  # fetch-id:
+  #   build: 
+  #     dockerfile: fetch.Dockerfile
+  #   command: git clone --depth=1 https://github.com/openstreetmap/iD.git /target
+  #   volumes:
+  #     - ./iD/src:/target
   
-  editor:
-    build:
-      context: iD/
-    # volumes:
-    #   - ./iD/src:/app
-    ports:
-      - "3001:8080"
-    depends_on:
-      - fetch-id
+  # editor:
+  #   build:
+  #     context: iD/
+  #   # volumes:
+  #   #   - ./iD/src:/app
+  #   ports:
+  #     - "3001:8080"
+  #   # depends_on:
+  #   #   - fetch-id
 
   web:
     build:
-      context: osm-rails-port/
+      context: osm-custom/
     volumes:
-      - ./osm-rails-port/:/app
+      # - ./osm-rails-port/:/app
       # Prevent these directories from mounting so they're not shared between host OS and Docker
-      - /app/node_modules/
-      - /app/tmp/
+      # - /app/node_modules/
+      # - /app/tmp/
       # Mount these upload directories so they persist between runs
       - web-traces:/home/osm/traces
       - web-images:/home/osm/images
@@ -42,13 +42,14 @@ services:
       - "3000:3000"
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
     depends_on:
-      - fetch-osm
+      # - fetch-osm
       - db
 
   db:
-    build:
-      context: osm-rails-port/
-      dockerfile: docker/postgres/Dockerfile
+    image: sparkgeo/osm-rails-port:v0.5-psql
+    # build:
+    #   context: osm-rails-port/
+    #   dockerfile: docker/postgres/Dockerfile
     ports:
       - "5432:5432"
     environment:
@@ -57,29 +58,29 @@ services:
     volumes:
       # Mount the Postgres data directory so it persists between runs
       - db-data:/var/lib/postgresql/data
-    depends_on:
-      - fetch-osm
+    # depends_on:
+      # - fetch-osm
   
-  clean-osm:
-    build: 
-      dockerfile: fetch.Dockerfile
-    command: find /target -delete
-    volumes:
-      - ./osm-rails-port/:/target
-    depends_on:
-      - fetch-osm
-      - db
-      - web
+  # clean-osm:
+  #   build: 
+  #     dockerfile: fetch.Dockerfile
+  #   command: find /target -delete
+  #   volumes:
+  #     - ./osm-rails-port/:/target
+  #   depends_on:
+  #     - fetch-osm
+  #     - db
+  #     - web
   
-  clean-id:
-    build: 
-      dockerfile: fetch.Dockerfile
-    command: find /target -delete
-    volumes:
-      - ./iD/src/:/target
-    depends_on:
-      - fetch-id
-      - editor
+  # clean-id:
+  #   build: 
+  #     dockerfile: fetch.Dockerfile
+  #   command: find /target -delete
+  #   volumes:
+  #     - ./iD/src/:/target
+  #   depends_on:
+  #     - fetch-id
+  #     - editor
 
 volumes:
   web-traces:
