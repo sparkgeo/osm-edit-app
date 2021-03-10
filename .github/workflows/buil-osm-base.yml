@@ -33,6 +33,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - 
+        name: Add All Files to Image
+        run: echo "\nADD . /app" >> osm-rails-port/Dockerfile
       -
         name: Build and push
         uses: docker/build-push-action@v2
