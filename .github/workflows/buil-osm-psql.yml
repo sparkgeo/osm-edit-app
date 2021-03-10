@@ -2,8 +2,10 @@ name: Build OSM PSQL
 
 on:
   push:
-    tag:
+    branches-ignore:
       - '*'
+    tag:
+      - 'v*'
 
 jobs:
    

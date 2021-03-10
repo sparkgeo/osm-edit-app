@@ -2,8 +2,10 @@ name: Build OSM
 
 on:
   push:
-    tag:
+    branches-ignore:
       - '*'
+    tag:
+      - 'v*'
 
 jobs:
    
