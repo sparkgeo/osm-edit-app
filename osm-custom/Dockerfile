@@ -1,4 +1,4 @@
-FROM sparkgeo/osm-rails-port:v0.5
+FROM sparkgeo/osm-rails-port:v0.7
 
 ADD ./land.html /app/public/land.html
 ADD ./database.yml /app/config/database.yml
