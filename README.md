@@ -65,7 +65,7 @@ Do the following:
 # Default editor
 default_editor: "id"
 # OAuth consumer key for iD
-id_key: "8lFmZPsagHV4l3rkAHq0hWY5vV3Ctl3oEFY1aXth"
+id_key: "<above_consumer_key>"
 ```
 
 * Run `docker compose up --build`
