@@ -130,6 +130,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Ignore external sources
-osm-rails-port/**/*
-iD/src/**/*
+# VS Code
+.vscode/
