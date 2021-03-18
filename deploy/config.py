@@ -8,7 +8,10 @@ from types import SimpleNamespace
 
 CommonConfig = {
     "env":
-        core.Environment(account=os.getenv("AWS_ACCT_ID"), region="us-east-1"),
+        core.Environment(
+            account=os.getenv("AWS_ACCT_ID"),
+            region=os.getenv("AWS_REGION", "us-east-1")
+        ),
 }
 
 ProdConfig = SimpleNamespace(

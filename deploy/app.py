@@ -11,7 +11,7 @@ app = core.App()
 
 OsmStack(
     app, 
-    f"{EnvConfig.env_id}-aafc-ingest",
+    f"{EnvConfig.env_id}-osm",
     config=EnvConfig,
     env=EnvConfig.env,
 )

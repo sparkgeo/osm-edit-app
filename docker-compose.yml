@@ -16,16 +16,20 @@ services:
       - web-images:/home/osm/images
     ports:
       - "3000:3000"
+    environment:
+      # Vars for the init script
+      PGUSER: openstreetmap
+      PGHOST: db
     # command: bundle exec rails s -p 3000 -b '0.0.0.0'
     depends_on:
       - db
 
   db:
-    image: sparkgeo/osm-rails-port:v0.6-psql
+    image: postgres:11
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_HOST_AUTH_METHOD: trust
+      # POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: openstreetmap
     volumes:
       # Mount the Postgres data directory so it persists between runs

@@ -44,11 +44,13 @@ class OsmStack(core.Stack):
         postgres = rds.DatabaseInstance(
             self,
             f"{config.env_id}OsmDb",
-            engine=rds.DatabaseInstanceEngine.POSTGRES,
+            engine=rds.DatabaseInstanceEngine.postgres(
+                version=rds.PostgresEngineVersion.VER_11_9
+            ),
             instance_type=config.rds.instance_type,
             # instance_identifier=f"{config.env_id}-osm-db",
             vpc=vpc,
-            deletion_protection=True,
+            # deletion_protection=True,
             multi_az=config.rds.multi_az,
         )
 
@@ -76,12 +78,14 @@ class OsmStack(core.Stack):
             ApplicationLoadBalancedTaskImageOptions(
                 image=ecs.ContainerImage.from_asset("../osm-custom"),
                 container_port=3000,
-                # environment={
-                #     "ENVIRONMENT": stack_name,
-                # },
+                environment={
+                    "PGHOST": postgres.db_instance_endpoint_address
+                },
                 secrets={
-                    "POSTGRES_CREDENTIALS":
-                        ecs.Secret.from_secrets_manager(postgres.secret)
+                    "PGPASSWORD":
+                        ecs.Secret.from_secrets_manager(postgres.secret, field="password"),
+                    "PGUSER":
+                        ecs.Secret.from_secrets_manager(postgres.secret, field="username")
                 },
                 enable_logging=True,
                 log_driver=ecs.LogDrivers.aws_logs(

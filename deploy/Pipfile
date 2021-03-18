@@ -15,6 +15,7 @@ pylint = "*"
 "aws-cdk.aws_ecr" = "1.93.0"
 "aws-cdk.aws_ecs" = "1.93.0"
 "aws-cdk.aws_ecs_patterns" = "1.93.0"
+cdk-sqlserver-seeder = "==0.2.3"
 
 [requires]
 python_version = "3.8"
