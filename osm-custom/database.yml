@@ -3,10 +3,10 @@
 #
 development:
   adapter: postgresql
-  database: openstreetmap
-  username: openstreetmap
-  password: openstreetmap
-  host: db
+  # database: openstreetmap
+  # username: openstreetmap
+  # password: openstreetmap
+  # host: db
   encoding: utf8
 
 # Warning: The database defined as 'test' will be erased and
@@ -22,7 +22,7 @@ test:
 
 production:
   adapter: postgresql
-  database: osm
+  database: openstreetmap
 #  username: osm
 #  password: osm
 #  host: localhost

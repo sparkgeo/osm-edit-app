@@ -51,7 +51,7 @@ class OsmStack(core.Stack):
             # instance_identifier=f"{config.env_id}-osm-db",
             vpc=vpc,
             # deletion_protection=True,
-            multi_az=config.rds.multi_az,
+            multi_az=config.rds.multi_az
         )
 
         #
@@ -64,9 +64,6 @@ class OsmStack(core.Stack):
             # domain_zone=domain_zone,
             # domain_name=domain_name,
             # certificate=cert, # TODO need this for HTTPS
-            # load_balancer=lb,
-            # public_load_balancer=True,
-            # protocol=elb.ApplicationProtocol.HTTP,
             redirect_http=False,  # TODO change once we have a certificate.
             cpu=config.osm_web.cpu,
             memory_limit_mib=config.osm_web.memory,
@@ -79,7 +76,8 @@ class OsmStack(core.Stack):
                 image=ecs.ContainerImage.from_asset("../osm-custom"),
                 container_port=3000,
                 environment={
-                    "PGHOST": postgres.db_instance_endpoint_address
+                    "PGHOST": postgres.db_instance_endpoint_address,
+                    "PGDATABASE": "openstreetmap"
                 },
                 secrets={
                     "PGPASSWORD":

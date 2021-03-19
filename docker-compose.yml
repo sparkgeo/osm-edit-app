@@ -4,6 +4,7 @@ version: "3"
 services:
 
   web:
+    # image: osm-edit-app_web:latest
     build:
       context: osm-custom/
     volumes:
@@ -18,7 +19,9 @@ services:
       - "3000:3000"
     environment:
       # Vars for the init script
-      PGUSER: openstreetmap
+      PGDATABASE: openstreetmap
+      PGUSER: postgres
+      PGPASSWORD: postgres
       PGHOST: db
     # command: bundle exec rails s -p 3000 -b '0.0.0.0'
     depends_on:
@@ -29,8 +32,10 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       # POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_DB: openstreetmap
+      # POSTGRES_DB: openstreetmap
     volumes:
       # Mount the Postgres data directory so it persists between runs
       - db-data:/var/lib/postgresql/data

@@ -18,10 +18,7 @@ ProdConfig = SimpleNamespace(
     env_id="prod",
     cidr_block="10.0.0.0/16",
     # TODO update the below to match Dev.
-    # rds_multi_az=True,
-    # rds_instance_type=ec2.InstanceType.of(
-    #     ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM
-    # ),
+
     # Put additional config above here.
     **CommonConfig
 )
@@ -37,8 +34,8 @@ DevConfig = SimpleNamespace(
         ),
     ),
     osm_web=SimpleNamespace(
-        cpu=512,
-        memory=1024,
+        cpu=1024,
+        memory=4096,
         count=1,
     ),
     # Put additional config above here.
