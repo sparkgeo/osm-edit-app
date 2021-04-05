@@ -5,6 +5,7 @@ ADD ./database.yml /app/config/database.yml
 ADD ./storage.yml /app/config/storage.yml
 ADD ./settings.local.yml /app/config/settings.local.yml
 ADD ./osm-db-functions.sql /app/config/osm-db-functions.sql
+ADD ./seeds.rb /app/db/seeds.rb
 ADD ./init_db.sh /app/config/init_db.sh
 
 ENTRYPOINT ["/app/config/init_db.sh"]

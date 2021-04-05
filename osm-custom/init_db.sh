@@ -28,4 +28,7 @@ echo "Done DB INIT"
 echo "Run Migrations"
 bundle exec rake db:migrate
 
+echo "Seed DB"
+rails db:seed
+
 exec ${@}
