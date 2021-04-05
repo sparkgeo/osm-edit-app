@@ -1,3 +1,6 @@
 [submodule "openstreetmap-website"]
 	path = openstreetmap-website
 	url = https://github.com/openstreetmap/openstreetmap-website
+[submodule "hootenanny"]
+	path = hootenanny
+	url = https://github.com/ngageoint/hootenanny
