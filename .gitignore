@@ -133,5 +133,5 @@ dmypy.json
 # VS Code
 .vscode/
 
-osm-custom/ogr2osm/map.geojson
-osm-custom/ogr2osm/map.osm
+map.geojson
+map.osm
