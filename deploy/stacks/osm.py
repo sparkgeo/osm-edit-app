@@ -64,22 +64,34 @@ class OsmStack(core.Stack):
         #
         # Apps
         #
+        osm_web_vol_assets = ecs.Volume(
+            name="OsmWebVolAssets",
+            efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                file_system_id=file_system.file_system_id,
+                root_directory="/osm-webapp/assets/"
+            )
+        )
+
+        osm_web_vol_attachments = ecs.Volume(
+            name="OsmWebVolAttachments",
+            efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                file_system_id=file_system.file_system_id,
+                root_directory="/osm-webapp/attachments/"
+            )
+        )
+
         osm_web_task_def = ecs.FargateTaskDefinition(
             self,
             f"{config.env_id}OsmWebTaskDef",
             cpu=config.osm_web.cpu,
             memory_limit_mib=config.osm_web.memory,
             volumes=[
-                ecs.Volume(
-                    name=f"{config.env_id}OsmWebService",
-                    efs_volume_configuration=ecs.EfsVolumeConfiguration(
-                        file_system_id=file_system.file_system_id,
-                        root_directory="/osm-webapp"
-                    )
-                )
+                osm_web_vol_assets,
+                osm_web_vol_attachments
             ]
         )
-        osm_web_task_def.add_container(
+
+        osm_web_cont_def = osm_web_task_def.add_container(
             f"{config.env_id}OsmWebCont",
             image=ecs.ContainerImage.from_asset("../osm-custom"),
             cpu=config.osm_web.cpu,
@@ -98,6 +110,18 @@ class OsmStack(core.Stack):
                     ecs.Secret.from_secrets_manager(postgres.secret, field="username")
             },
         )
+        osm_web_cont_def.add_mount_points(ecs.MountPoint(
+                container_path="/usr/share/mapedit/public/assets",
+                read_only=False,
+                source_volume=osm_web_vol_assets.name
+            )
+        )
+        osm_web_cont_def.add_mount_points(ecs.MountPoint(
+                container_path="/usr/share/mapedit/public/attachments",
+                read_only=False,
+                source_volume=osm_web_vol_attachments.name
+            )
+        )
 
         osm_web = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
@@ -114,25 +138,6 @@ class OsmStack(core.Stack):
                 cloud_map_namespace=namespace, name="osm-web"
             ),
             task_definition=osm_web_task_def,
-            # task_image_options=ecs_patterns.
-            # ApplicationLoadBalancedTaskImageOptions(
-            #     image=ecs.ContainerImage.from_asset("../osm-custom"),
-            #     container_port=3000,
-            #     environment={
-            #         "PGHOST": postgres.db_instance_endpoint_address,
-            #         "PGDATABASE": "openstreetmap"
-            #     },
-            #     secrets={
-            #         "PGPASSWORD":
-            #             ecs.Secret.from_secrets_manager(postgres.secret, field="password"),
-            #         "PGUSER":
-            #             ecs.Secret.from_secrets_manager(postgres.secret, field="username")
-            #     },
-            #     enable_logging=True,
-            #     log_driver=ecs.LogDrivers.aws_logs(
-            #         stream_prefix=f"{config.env_id}OsmWeb", log_group=log_group
-            #     ),
-            # ),
         )
 
         postgres.connections.allow_default_port_from(osm_web.service)
