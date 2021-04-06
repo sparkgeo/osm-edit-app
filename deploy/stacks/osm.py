@@ -8,6 +8,7 @@ from aws_cdk import (
     # aws_elasticloadbalancingv2 as elb,
     aws_servicediscovery as servicediscovery,
     aws_logs as logs,
+    aws_efs as efs
 )
 
 
@@ -28,11 +29,17 @@ class OsmStack(core.Stack):
             vpc=vpc
         )
 
-        log_group = logs.LogGroup(
+        file_system = efs.FileSystem(
             self,
-            f"{config.env_id}LogGroup",
-            log_group_name=f"{config.env_id}SecureMaps"
+            f"{config.env_id}Efs",
+            vpc=vpc
         )
+
+        # log_group = logs.LogGroup(
+        #     self,
+        #     f"{config.env_id}LogGroup",
+        #     log_group_name=f"{config.env_id}SecureMaps"
+        # )
 
         cluster = ecs.Cluster(
             self, f"{config.env_id}Cluster", vpc=vpc, container_insights=True
@@ -57,6 +64,41 @@ class OsmStack(core.Stack):
         #
         # Apps
         #
+        osm_web_task_def = ecs.FargateTaskDefinition(
+            self,
+            f"{config.env_id}OsmWebTaskDef",
+            cpu=config.osm_web.cpu,
+            memory_limit_mib=config.osm_web.memory,
+            volumes=[
+                ecs.Volume(
+                    name=f"{config.env_id}OsmWebService",
+                    efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                        file_system_id=file_system.file_system_id,
+                        root_directory="/osm-webapp"
+                    )
+                )
+            ]
+        )
+        osm_web_task_def.add_container(
+            f"{config.env_id}OsmWebCont",
+            image=ecs.ContainerImage.from_asset("../osm-custom"),
+            cpu=config.osm_web.cpu,
+            memory_limit_mib=config.osm_web.memory,
+            port_mappings=[
+                ecs.PortMapping(container_port=3000)
+            ],
+            environment={
+                "PGHOST": postgres.db_instance_endpoint_address,
+                "PGDATABASE": "openstreetmap"
+            },
+            secrets={
+                "PGPASSWORD":
+                    ecs.Secret.from_secrets_manager(postgres.secret, field="password"),
+                "PGUSER":
+                    ecs.Secret.from_secrets_manager(postgres.secret, field="username")
+            },
+        )
+
         osm_web = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             f"{config.env_id}OsmWeb",
@@ -71,24 +113,26 @@ class OsmStack(core.Stack):
             cloud_map_options=ecs.CloudMapOptions(
                 cloud_map_namespace=namespace, name="osm-web"
             ),
-            task_image_options=ecs_patterns.
-            ApplicationLoadBalancedTaskImageOptions(
-                image=ecs.ContainerImage.from_asset("../osm-custom"),
-                container_port=3000,
-                environment={
-                    "PGHOST": postgres.db_instance_endpoint_address,
-                    "PGDATABASE": "openstreetmap"
-                },
-                secrets={
-                    "PGPASSWORD":
-                        ecs.Secret.from_secrets_manager(postgres.secret, field="password"),
-                    "PGUSER":
-                        ecs.Secret.from_secrets_manager(postgres.secret, field="username")
-                },
-                enable_logging=True,
-                log_driver=ecs.LogDrivers.aws_logs(
-                    stream_prefix=f"{config.env_id}OsmWeb", log_group=log_group
-                ),
-            ),
+            task_definition=osm_web_task_def,
+            # task_image_options=ecs_patterns.
+            # ApplicationLoadBalancedTaskImageOptions(
+            #     image=ecs.ContainerImage.from_asset("../osm-custom"),
+            #     container_port=3000,
+            #     environment={
+            #         "PGHOST": postgres.db_instance_endpoint_address,
+            #         "PGDATABASE": "openstreetmap"
+            #     },
+            #     secrets={
+            #         "PGPASSWORD":
+            #             ecs.Secret.from_secrets_manager(postgres.secret, field="password"),
+            #         "PGUSER":
+            #             ecs.Secret.from_secrets_manager(postgres.secret, field="username")
+            #     },
+            #     enable_logging=True,
+            #     log_driver=ecs.LogDrivers.aws_logs(
+            #         stream_prefix=f"{config.env_id}OsmWeb", log_group=log_group
+            #     ),
+            # ),
         )
+
         postgres.connections.allow_default_port_from(osm_web.service)
