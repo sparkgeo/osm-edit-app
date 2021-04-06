@@ -7,3 +7,7 @@ convert.sh map.json out.osm
 ```
 
 To convert from osm to geojson, following these docs: https://github.com/tyrasd/osmtogeojson
+
+```shell
+osmtogeojson map.osm > map.geojson
+```
